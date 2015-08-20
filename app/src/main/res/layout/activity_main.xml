@@ -7,13 +7,14 @@
               tools:context=".MainActivity">
 
     <!-- Clock TextView  -->
+
     <TextView
         android:id="@+id/text_clock"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_weight="1"
-        android:text="0:00"
+        android:text="0"
         android:textSize="80sp"
         />
 
@@ -37,17 +38,20 @@
                 android:layout_weight="1"
                 android:text="Interval (sec)"
                 android:gravity="center"
-                android:textSize="18sp"/>
+                android:textSize="18sp"
+                />
 
-            <TextView
+            <EditText
                 android:id="@+id/text_intervals"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_caption_intervals"
-                android:text="20"
+                android:text="@string/text_intervals"
                 android:layout_weight="1"
                 android:textSize="80sp"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:inputType="number"
+                />
 
         </RelativeLayout>
         <RelativeLayout
@@ -64,15 +68,16 @@
                 android:gravity="center"
                 android:textSize="18sp"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/text_rest"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_caption_rest"
-                android:text="10"
+                android:text="@string/text_rest"
                 android:layout_weight="1"
                 android:textSize="80sp"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:inputType="number"/>
 
         </RelativeLayout>
         <RelativeLayout
@@ -89,15 +94,16 @@
                 android:gravity="center"
                 android:textSize="18sp"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/text_sets"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_caption_sets"
-                android:text="3"
+                android:text="@string/text_sets"
                 android:layout_weight="1"
                 android:textSize="80sp"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:inputType="number"/>
 
         </RelativeLayout>
     </LinearLayout>
