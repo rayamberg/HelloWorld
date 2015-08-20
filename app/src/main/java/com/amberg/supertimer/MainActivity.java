@@ -10,12 +10,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.NumberPicker;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     //Sounds will play funny because Soundpool needs to be checking if the sound is playing.
     private static final String TAG = "MainActivity";
+    private EditText mTextIntervals, mTextRest, mTextSets;
     private Button mStartButton, mCancelButton;
     private TextView mClockText;
     private SoundPool mSP;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         private int mSets;
 
         SuperTimer(long work, long rest, int sets) {
+            /* TODO: Error Checking */
             super((sets*(work + rest) - rest)*1000, 500);
             mWork = work;
             mRest = rest;
@@ -83,13 +85,11 @@ public class MainActivity extends AppCompatActivity {
         public void onFinish() {
             mClockText.setText("Done!");
             mSP.play(mSoundCheer, 1f, 1f, 0, 0, 1f);
-            mSoundID = -1;
-            mStartButton.setEnabled(true);
-            mCancelButton.setEnabled(false);
+            reset();
         }
     }
 
-    SuperTimer st;
+    private SuperTimer st;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,15 +101,26 @@ public class MainActivity extends AppCompatActivity {
         mStartButton = (Button)findViewById(R.id.button_start);
         mCancelButton = (Button)findViewById(R.id.button_cancel);
         mCancelButton.setEnabled(false);
+        mTextIntervals = (EditText)findViewById(R.id.text_intervals);
+        mTextRest = (EditText)findViewById(R.id.text_rest);
+        mTextSets = (EditText)findViewById(R.id.text_sets);
 
         //set listeners
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Start button clicked");
+                int work, rest, sets;
+                work = Integer.parseInt(mTextIntervals.getText().toString());
+                rest = Integer.parseInt(mTextRest.getText().toString());
+                sets = Integer.parseInt(mTextSets.getText().toString());
                 mClockText.setText(Integer.toString(60));
                 mStartButton.setEnabled(false);
                 mCancelButton.setEnabled(true);
+                mTextIntervals.setEnabled(false);
+                mTextRest.setEnabled(false);
+                mTextSets.setEnabled(false);
+                st = new SuperTimer(work, rest, sets);
                 st.start();
             }
         });
@@ -119,9 +130,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d(TAG, "Cancel button clicked");
                 mClockText.setText("Canceled");
-                mStartButton.setEnabled(true);
-                mCancelButton.setEnabled(false);
-                mSoundID = -1;
+                reset();
                 st.cancel();
             }
         });
@@ -138,9 +147,6 @@ public class MainActivity extends AppCompatActivity {
         mSoundWhistle = mSP.load(this, R.raw.referee_whistle, 1);
         mSoundCheer = mSP.load(this, R.raw.ovation, 1);
         mSoundBeepBeep = mSP.load(this, R.raw.beepbeep, 1);
-
-        //prepare timer
-        st = new SuperTimer(20, 10, 3);
 
     }
 
@@ -164,5 +170,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void reset() {
+        mStartButton.setEnabled(true);
+        mCancelButton.setEnabled(false);
+        mTextIntervals.setEnabled(true);
+        mTextRest.setEnabled(true);
+        mTextSets.setEnabled(true);
+        mSoundID = -1;
     }
 }
