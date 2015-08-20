@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     //Sounds will play funny because Soundpool needs to be checking if the sound is playing.
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onFinish() {
-            mClockText.setText("Done!");
+            Toast.makeText(MainActivity.this, "Timer Done!", Toast.LENGTH_SHORT).show();
             mSP.play(mSoundCheer, 1f, 1f, 0, 0, 1f);
             reset();
         }
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Cancel button clicked");
-                mClockText.setText("Canceled");
+                Toast.makeText(MainActivity.this, "Canceled", Toast.LENGTH_SHORT).show();
                 reset();
                 st.cancel();
             }
@@ -173,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void reset() {
+        mClockText.setText(R.string.text_clock);
         mStartButton.setEnabled(true);
         mCancelButton.setEnabled(false);
         mTextIntervals.setEnabled(true);
