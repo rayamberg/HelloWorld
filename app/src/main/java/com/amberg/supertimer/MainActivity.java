@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onTick(long millis_remaining) {
-            /* TODO: Do not display time as sum of work + rest.*/
             long displayTime;
             long nextEvent = mTimerEvents.get(0);
 
