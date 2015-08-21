@@ -13,9 +13,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    //Sounds will play funny because Soundpool needs to be checking if the sound is playing.
+    /* For the future, to properly capture time with varying objects, like if users
+    will eventually be able to program their own timers, you'll want to split the works
+    and rests into individual objects of some sort. Those objects will know their own
+    durations, and this along with the millis_remaining variable, can tell the clock what to put
+    on the display. For example, imagine a millis_remaining of 76sec encounters an interval
+    object with a duration of 10sec. Using a list like mTimerEvent, the timer will know that
+    at 76sec, it needs to go to the interval object. While it is using this interval object,
+    the timer will always subtract 66sec (the difference of 76sec and 10sec) from its value.
+    Once millis_remaining is 66sec, it is done with the interval object and can move on to the
+    next object, be it rest, or whatever. One more thing: to check whether it needs to move onto
+    the next object, it checks whether it is greater than the first item in the array mTimerEvent.
+    When it's done, it deletes it from the array and goes to the next object until done.
+     */
     private static final String TAG = "MainActivity";
     private EditText mTextIntervals, mTextRest, mTextSets;
     private Button mStartButton, mCancelButton;
@@ -24,62 +37,64 @@ public class MainActivity extends AppCompatActivity {
     private int mSoundID = -1; //trying to use this to have sounds only play once.
     //the above seems like a dumb hack.
     private int mSoundWhistle, mSoundCheer, mSoundBeepBeep;
-    /* Implementing CountDownTimer within the activity, since I'm
-    not sure how one would go about sending the tick updates to the
-    activity quickly and efficiently otherwise (Intents maybe?)
-     */
+    /* Implementing CountDownTimer within the activity, but at some
+    * point it might be good to see how to encapsulate it into its own class file */
     public class SuperTimer extends CountDownTimer {
-        private long mWork, mRest, mTotal;
-        private int mSets;
+        private long mWork, mRest, mModulus, mInitialSecs;
+        private boolean isRest = false;
+        private int mSets, mCurrentSet;
+        private ArrayList<Long> mTimerEvents = new ArrayList<>();
 
         SuperTimer(long work, long rest, int sets) {
             /* TODO: Error Checking */
-            super((sets*(work + rest) - rest)*1000, 500);
+            super((sets * (work+rest) - rest) * 1000, 500);
+            mInitialSecs = (sets * (work+rest) - rest);
             mWork = work;
             mRest = rest;
-            mTotal = mWork + mRest;
             mSets = sets;
+
+            /* mTimerEvents should store the milliseconds remaining on
+            the clock for every event. */
+            for (int i = 0; i < mSets; i++) {
+                long endSet = mInitialSecs - (i+1)*(mWork) - i*mRest;
+                long endRest = mInitialSecs - (i+1)*(mWork) - (i+1)*mRest;
+                mTimerEvents.add(endSet);
+
+                //The event list ends at zero. Don't add negative time events.
+                if (endRest < 0)
+                    break;
+                mTimerEvents.add(endRest);
+            }
         }
 
         @Override
         public void onTick(long millis_remaining) {
+            /* TODO: Do not display time as sum of work + rest.*/
             long displayTime;
-            //if we're not on last set
-            if (millis_remaining > mWork * 1000)
-                displayTime = (((millis_remaining / 1000) + 1 + mRest) % mTotal);
-            else
-                displayTime = (((millis_remaining / 1000) + 1) % mTotal);
+            long nextEvent = mTimerEvents.get(0);
 
+            displayTime = getDisplayTime(millis_remaining, nextEvent);
             if (displayTime == 0) {
-                displayTime += mTotal;
-                if (mSoundID != mSoundWhistle) {
-                    mSP.play(mSoundWhistle, 1f, 1f, 1, 0, 1f);
-                    mSoundID = mSoundWhistle;
+                if (isRest) { //we're at the end of rest period
+                    if (mSoundID != mSoundWhistle) {
+                        mSP.play(mSoundWhistle, 1f, 1f, 1, 0, 1f);
+                        Log.d(TAG, "Playing Whistle!");
+                        mSoundID = mSoundWhistle;
+                    }
+                } else { //we're at the end of the work period
+                    if (mSoundID != mSoundBeepBeep) {
+                        mSP.play(mSoundBeepBeep, 1f, 1f, 1, 0, 1f);
+                        Log.d(TAG, "Playing Beep Beep!");
+                        mSoundID = mSoundBeepBeep;
+                    }
                 }
+                mTimerEvents.remove(0);
+                nextEvent = mTimerEvents.get(0);
+                displayTime = getDisplayTime(millis_remaining, nextEvent);
+                isRest = !isRest;
             }
 
             mClockText.setText("" + displayTime);
-            /* The block here deals with resting or the special case when you're
-            on the last set and there is no rest interval. Normally you add the
-            rest interval to the work interval, but the last set is _only_ the
-            work interval, since you're done afterward!
-             */
-            if (mClockText.getText().equals(Long.toString(mRest))
-                    && millis_remaining > mWork*1000) {
-                if (mSoundID != mSoundBeepBeep) {
-                    mSP.play(mSoundBeepBeep, 1f, 1f, 0, 0, 1f);
-                    Log.d(TAG, "Playing Beep Beep!");
-                    mSoundID = mSoundBeepBeep;
-                }
-                mClockText.setText("Rest!");
-            } else if (mClockText.getText().equals(Long.toString(mWork))
-                    && millis_remaining < mWork*1000 ) {
-                if (mSoundID != mSoundWhistle) {
-                    mSP.play(mSoundWhistle, 1f, 1f, 0, 0, 1f);
-                    Log.d(TAG, "Playing Whistle!");
-                    mSoundID = mSoundWhistle;
-                }
-            }
         }
 
         @Override
@@ -87,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Timer Done!", Toast.LENGTH_SHORT).show();
             mSP.play(mSoundCheer, 1f, 1f, 0, 0, 1f);
             reset();
+        }
+
+        private long getDisplayTime(long millis_remaining, long secs_end) {
+            return (millis_remaining / 1000) + 1 - secs_end;
         }
     }
 
@@ -115,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 work = Integer.parseInt(mTextIntervals.getText().toString());
                 rest = Integer.parseInt(mTextRest.getText().toString());
                 sets = Integer.parseInt(mTextSets.getText().toString());
-                mClockText.setText(Integer.toString(60));
+                mClockText.setText(Integer.toString(work));
                 mStartButton.setEnabled(false);
                 mCancelButton.setEnabled(true);
                 mTextIntervals.setEnabled(false);
@@ -123,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
                 mTextSets.setEnabled(false);
                 st = new SuperTimer(work, rest, sets);
                 st.start();
+                mSP.play(mSoundWhistle, 1f, 1f, 1, 0, 1f);
+                Log.d(TAG, "Playing Whistle!");
+                mSoundID = mSoundWhistle;
             }
         });
 
