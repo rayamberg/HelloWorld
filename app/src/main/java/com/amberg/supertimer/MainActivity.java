@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private SoundPool mSP;
     private int mSoundID = -1; //trying to use this to have sounds only play once.
     //the above seems like a dumb hack.
-    private int mSoundWhistle, mSoundCheer, mSoundBeepBeep;
+    private int mSoundWhistle, mSoundCheer, mSoundRest;
     /* Implementing CountDownTimer within the activity, but at some
     * point it might be good to see how to encapsulate it into its own class file */
     public class SuperTimer extends CountDownTimer {
@@ -82,10 +82,10 @@ public class MainActivity extends AppCompatActivity {
                         mSoundID = mSoundWhistle;
                     }
                 } else { //we're at the end of the work period
-                    if (mSoundID != mSoundBeepBeep) {
-                        mSP.play(mSoundBeepBeep, 1f, 1f, 1, 0, 1f);
+                    if (mSoundID != mSoundRest) {
+                        mSP.play(mSoundRest, 1f, 1f, 1, 0, 1f);
                         Log.d(TAG, "Playing Beep Beep!");
-                        mSoundID = mSoundBeepBeep;
+                        mSoundID = mSoundRest;
                     }
                 }
                 mTimerEvents.remove(0);
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         //prepare sounds
         mSoundWhistle = mSP.load(this, R.raw.referee_whistle, 1);
         mSoundCheer = mSP.load(this, R.raw.ovation, 1);
-        mSoundBeepBeep = mSP.load(this, R.raw.beepbeep, 1);
+        mSoundRest = mSP.load(this, R.raw.rest, 1);
 
     }
 
