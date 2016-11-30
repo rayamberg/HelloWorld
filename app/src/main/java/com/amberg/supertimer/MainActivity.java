@@ -41,9 +41,9 @@ public class MainActivity extends AppCompatActivity {
     /* Implementing CountDownTimer within the activity, but at some
     * point it might be good to see how to encapsulate it into its own class file */
     public class SuperTimer extends CountDownTimer {
-        private long mWork, mRest, mModulus, mInitialSecs;
+        private long mWork, mRest, mInitialSecs;
         private boolean isRest = false;
-        private int mSets, mCurrentSet;
+        private int mSets;
         private ArrayList<Long> mTimerEvents = new ArrayList<>();
 
         SuperTimer(long work, long rest, int sets) {
