@@ -1,5 +1,7 @@
 package com.amberg.supertimer;
 
+import java.util.UUID;
+
 /**
  * This class represents a singular event in the sequence of events that occur when the timer is
  * running. The event has a duration in milliseconds, however may also be zero, indicating that
@@ -8,35 +10,41 @@ package com.amberg.supertimer;
  */
 
 public class TimerEvent {
+    private UUID mId;
     public enum Type { WORK, REST }
-    Type type;
-    private long duration;
+    Type mType;
+    private long mDuration;
 
     /* default constructor: duration should be in milliseconds
      * and type should be one of the Types defined above.
       * NOTE: duration of 0 means untimed */
     TimerEvent(long duration, Type type) {
-        this.duration = duration;
-        this.type = type;
+        mId = UUID.randomUUID();
+        mDuration = duration;
+        mType = type;
+    }
+
+    public UUID getmId() {
+        return mId;
     }
 
     public long getDuration() {
-        return this.duration;
+        return this.mDuration;
     }
 
     public Type getType() {
-        return this.type;
+        return this.mType;
     }
 
     public void setDuration(long duration) {
-        this.duration = duration;
+        this.mDuration = duration;
     }
 
     public void setType(Type type) {
-        this.type = type;
+        this.mType = type;
     }
 
     public boolean isUntimed() {
-        return (this.duration == 0);
+        return (this.mDuration == 0);
     }
 }
