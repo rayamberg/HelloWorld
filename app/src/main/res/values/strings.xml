@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">SuperTimer</string>
 
-    <string name="text_clock">0</string>
+    <string name="text_clock">00:00</string>
     <string name="button_start">Start</string>
     <string name="button_cancel">Cancel</string>
     <string name="action_settings">Settings</string>

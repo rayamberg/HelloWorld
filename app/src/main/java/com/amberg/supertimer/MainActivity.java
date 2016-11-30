@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             long displayTime;
             long nextEvent = mTimerEvents.get(0);
 
-            displayTime = getDisplayTime(millis_remaining, nextEvent);
+            displayTime = displayTime(millis_remaining, nextEvent);
             if (displayTime == 0) {
                 if (isRest) { //we're at the end of rest period
                     if (mSoundID != mSoundWhistle) {
@@ -90,11 +90,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mTimerEvents.remove(0);
                 nextEvent = mTimerEvents.get(0);
-                displayTime = getDisplayTime(millis_remaining, nextEvent);
+                displayTime = displayTime(millis_remaining, nextEvent);
                 isRest = !isRest;
             }
 
-            mClockText.setText("" + displayTime);
+            mClockText.setText(formatTimeString(displayTime));
         }
 
         @Override
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             reset();
         }
 
-        private long getDisplayTime(long millis_remaining, long secs_end) {
+        private long displayTime(long millis_remaining, long secs_end) {
             return (millis_remaining / 1000) + 1 - secs_end;
         }
     }
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 work = Integer.parseInt(mTextIntervals.getText().toString());
                 rest = Integer.parseInt(mTextRest.getText().toString());
                 sets = Integer.parseInt(mTextSets.getText().toString());
-                mClockText.setText(Integer.toString(work));
+                mClockText.setText(formatTimeString(work));
                 mStartButton.setEnabled(false);
                 mCancelButton.setEnabled(true);
                 mTextIntervals.setEnabled(false);
@@ -205,5 +205,11 @@ public class MainActivity extends AppCompatActivity {
         mTextRest.setEnabled(true);
         mTextSets.setEnabled(true);
         mSoundID = -1;
+    }
+
+    private String formatTimeString(long seconds) {
+        long mins = seconds / 60;
+        long secs = seconds % 60;
+        return String.format("%02d:%02d", mins, secs);
     }
 }
