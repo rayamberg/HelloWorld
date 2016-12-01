@@ -3,8 +3,10 @@ package com.amberg.supertimer;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.CountDownTimer;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
+
     /* For the future, to properly capture time with varying objects, like if users
     will eventually be able to program their own timers, you'll want to split the works
     and rests into individual objects of some sort. Those objects will know their own
@@ -117,6 +120,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         /* Prevent fade to black */
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        //get the fragment manager and load up a fragment
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.fragmentContainer);
+        if (fragment == null) {
+            fragment = new MainFragment();
+            fm.beginTransaction()
+                    .add(R.id.fragmentContainer, fragment)
+                    .commit();
+        }
+
+
 
         //Find views
         mClockText = (TextView)findViewById(R.id.text_clock);
