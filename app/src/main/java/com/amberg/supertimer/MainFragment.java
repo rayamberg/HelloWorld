@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 /**
@@ -37,7 +39,7 @@ public class MainFragment extends Fragment {
     private static final String TAG = "MainActivity";
     private EditText mTextIntervals, mTextRest, mTextSets;
     private Button mStartButton, mCancelButton;
-    private TextView mClockText;
+    private TextView mClockText, mCurrentSetText;
     private SoundPool mSP;
     private int mSoundID = -1; //trying to use this to have sounds only play once.
     //the above seems like a dumb hack.
@@ -142,6 +144,7 @@ public class MainFragment extends Fragment {
 
         /* Wire up view objects to the view */
         mClockText = (TextView)v.findViewById(R.id.text_clock);
+        mCurrentSetText = (TextView)v.findViewById(R.id.text_currentSet);
         mStartButton = (Button)v.findViewById(R.id.button_start);
         mCancelButton = (Button)v.findViewById(R.id.button_cancel);
         mCancelButton.setEnabled(false);
@@ -159,6 +162,7 @@ public class MainFragment extends Fragment {
                 rest = Integer.parseInt(mTextRest.getText().toString());
                 sets = Integer.parseInt(mTextSets.getText().toString());
                 mClockText.setText(formatTimeString(work));
+                mCurrentSetText.setVisibility(View.VISIBLE);
                 mStartButton.setEnabled(false);
                 mCancelButton.setEnabled(true);
                 mTextIntervals.setEnabled(false);
@@ -187,6 +191,7 @@ public class MainFragment extends Fragment {
 
     private void reset() {
         mClockText.setText(R.string.text_clock);
+        mCurrentSetText.setVisibility(View.GONE);
         mStartButton.setEnabled(true);
         mCancelButton.setEnabled(false);
         mTextIntervals.setEnabled(true);

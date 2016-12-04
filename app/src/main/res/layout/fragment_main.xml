@@ -18,6 +18,17 @@
         android:textSize="80sp"
         />
 
+    <!-- Current Set TextView -->
+    <TextView
+        android:id="@+id/text_currentSet"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_weight=".5"
+        android:text="Set: "
+        android:textSize="40sp"
+        android:visibility="gone"
+        />
 
     <!-- Layout for Setting Interval and Sets -->
     <LinearLayout
