@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,9 +38,10 @@ import java.util.ArrayList;
 
 public class MainFragment extends Fragment {
     private static final String TAG = "MainActivity";
-    private EditText mTextIntervals, mTextRest, mTextSets;
+    private EditText mTextWork, mTextRest, mTextSets;
     private Button mStartButton, mCancelButton;
     private TextView mClockText, mCurrentSetText;
+    private LinearLayout mSettingsBox;
     private SoundPool mSP;
     private int mSoundID = -1; //trying to use this to have sounds only play once.
     //the above seems like a dumb hack.
@@ -49,7 +51,7 @@ public class MainFragment extends Fragment {
     public class SuperTimer extends CountDownTimer {
         private long mWork, mRest, mInitialSecs;
         private boolean isRest = false;
-        private int mSets;
+        private int mSets, mCurrentSet;
         private ArrayList<Long> mTimerEvents = new ArrayList<>();
 
         SuperTimer(long work, long rest, int sets) {
@@ -59,6 +61,7 @@ public class MainFragment extends Fragment {
             mWork = work;
             mRest = rest;
             mSets = sets;
+            mCurrentSet = 1; //this will change in a later version
 
             /* mTimerEvents should store the milliseconds remaining on
             the clock for every event. */
@@ -86,6 +89,9 @@ public class MainFragment extends Fragment {
                         mSP.play(mSoundWhistle, 1f, 1f, 1, 0, 1f);
                         Log.d(TAG, "Playing Whistle!");
                         mSoundID = mSoundWhistle;
+                        mCurrentSet += 1;
+                        mCurrentSetText.setText("Set: " + Integer.toString(mCurrentSet)
+                                + " of " + Integer.toString(mSets));
                     }
                 } else { //we're at the end of the work period
                     if (mSoundID != mSoundRest) {
@@ -148,9 +154,10 @@ public class MainFragment extends Fragment {
         mStartButton = (Button)v.findViewById(R.id.button_start);
         mCancelButton = (Button)v.findViewById(R.id.button_cancel);
         mCancelButton.setEnabled(false);
-        mTextIntervals = (EditText)v.findViewById(R.id.text_intervals);
+        mTextWork = (EditText)v.findViewById(R.id.text_work);
         mTextRest = (EditText)v.findViewById(R.id.text_rest);
         mTextSets = (EditText)v.findViewById(R.id.text_sets);
+        mSettingsBox = (LinearLayout)v.findViewById(R.id.settingsBox);
 
         //set listeners
         mStartButton.setOnClickListener(new View.OnClickListener() {
@@ -158,16 +165,18 @@ public class MainFragment extends Fragment {
             public void onClick(View v) {
                 Log.d(TAG, "Start button clicked");
                 int work, rest, sets;
-                work = Integer.parseInt(mTextIntervals.getText().toString());
+                work = Integer.parseInt(mTextWork.getText().toString());
                 rest = Integer.parseInt(mTextRest.getText().toString());
                 sets = Integer.parseInt(mTextSets.getText().toString());
                 mClockText.setText(formatTimeString(work));
+                /* Display that we're on Set 1 of X sets. That number 1 is hard coded, but
+                eventually will need to be changed to reflect whether we're on a work set
+                 */
+                mCurrentSetText.setText("Set: 1 of " + mTextSets.getText());
                 mCurrentSetText.setVisibility(View.VISIBLE);
                 mStartButton.setEnabled(false);
                 mCancelButton.setEnabled(true);
-                mTextIntervals.setEnabled(false);
-                mTextRest.setEnabled(false);
-                mTextSets.setEnabled(false);
+                mSettingsBox.setVisibility(View.INVISIBLE);
                 st = new SuperTimer(work, rest, sets);
                 st.start();
                 mSP.play(mSoundWhistle, 1f, 1f, 1, 0, 1f);
@@ -194,10 +203,11 @@ public class MainFragment extends Fragment {
         mCurrentSetText.setVisibility(View.GONE);
         mStartButton.setEnabled(true);
         mCancelButton.setEnabled(false);
-        mTextIntervals.setEnabled(true);
+        mTextWork.setEnabled(true);
         mTextRest.setEnabled(true);
         mTextSets.setEnabled(true);
         mSoundID = -1;
+        mSettingsBox.setVisibility(View.VISIBLE);
     }
 
     private String formatTimeString(long seconds) {
