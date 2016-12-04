@@ -18,6 +18,18 @@
         android:textSize="80sp"
         />
 
+    <!-- Set Type TextView -->
+    <TextView
+        android:id="@+id/text_set_type"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="WORK"
+        android:textSize="30sp"
+        android:textColor="#ff00"
+        android:visibility="gone"
+        />
+
     <!-- Current Set TextView -->
     <TextView
         android:id="@+id/text_currentSet"
@@ -26,7 +38,7 @@
         android:gravity="center"
         android:layout_weight=".5"
         android:text="Set: "
-        android:textSize="40sp"
+        android:textSize="30sp"
         android:visibility="gone"
         />
 

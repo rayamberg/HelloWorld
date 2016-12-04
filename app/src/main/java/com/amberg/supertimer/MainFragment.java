@@ -1,5 +1,6 @@
 package com.amberg.supertimer;
 
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -40,7 +41,7 @@ public class MainFragment extends Fragment {
     private static final String TAG = "MainActivity";
     private EditText mTextWork, mTextRest, mTextSets;
     private Button mStartButton, mCancelButton;
-    private TextView mClockText, mCurrentSetText;
+    private TextView mClockText, mCurrentSetText, mSetType;
     private LinearLayout mSettingsBox;
     private SoundPool mSP;
     private int mSoundID = -1; //trying to use this to have sounds only play once.
@@ -87,16 +88,20 @@ public class MainFragment extends Fragment {
                 if (isRest) { //we're at the end of rest period
                     if (mSoundID != mSoundWhistle) {
                         mSP.play(mSoundWhistle, 1f, 1f, 1, 0, 1f);
-                        Log.d(TAG, "Playing Whistle!");
+                        Log.d(TAG, "Playing Whistle Sound!");
                         mSoundID = mSoundWhistle;
+                        mSetType.setText("WORK");
+                        mSetType.setTextColor(Color.parseColor("#ff0000"));
                         mCurrentSet += 1;
                         mCurrentSetText.setText("Set: " + Integer.toString(mCurrentSet)
                                 + " of " + Integer.toString(mSets));
                     }
                 } else { //we're at the end of the work period
                     if (mSoundID != mSoundRest) {
+                        mSetType.setText("REST");
+                        mSetType.setTextColor(Color.parseColor("#0000ff"));
                         mSP.play(mSoundRest, 1f, 1f, 1, 0, 1f);
-                        Log.d(TAG, "Playing Beep Beep!");
+                        Log.d(TAG, "Playing Rest Sound!");
                         mSoundID = mSoundRest;
                     }
                 }
@@ -150,6 +155,7 @@ public class MainFragment extends Fragment {
 
         /* Wire up view objects to the view */
         mClockText = (TextView)v.findViewById(R.id.text_clock);
+        mSetType = (TextView)v.findViewById(R.id.text_set_type);
         mCurrentSetText = (TextView)v.findViewById(R.id.text_currentSet);
         mStartButton = (Button)v.findViewById(R.id.button_start);
         mCancelButton = (Button)v.findViewById(R.id.button_cancel);
@@ -169,6 +175,9 @@ public class MainFragment extends Fragment {
                 rest = Integer.parseInt(mTextRest.getText().toString());
                 sets = Integer.parseInt(mTextSets.getText().toString());
                 mClockText.setText(formatTimeString(work));
+                mSetType.setText("WORK");
+                mSetType.setTextColor(Color.parseColor("#ff0000"));
+                mSetType.setVisibility(View.VISIBLE);
                 /* Display that we're on Set 1 of X sets. That number 1 is hard coded, but
                 eventually will need to be changed to reflect whether we're on a work set
                  */
@@ -200,6 +209,7 @@ public class MainFragment extends Fragment {
 
     private void reset() {
         mClockText.setText(R.string.text_clock);
+        mSetType.setVisibility(View.GONE);
         mCurrentSetText.setVisibility(View.GONE);
         mStartButton.setEnabled(true);
         mCancelButton.setEnabled(false);
