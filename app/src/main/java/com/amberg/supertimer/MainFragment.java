@@ -16,9 +16,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
 /**
@@ -48,10 +45,12 @@ public class MainFragment extends Fragment {
     private int mSoundID = -1; //trying to use this to have sounds only play once.
     //the above seems like a dumb hack.
     private int mSoundWhistle, mSoundCheer, mSoundRest;
+    private TimerEventStore mTimerEventStore = new TimerEventStore();
+
     /* Implementing CountDownTimer within the activity, but at some
     * point it might be good to see how to encapsulate it into its own class file */
     public class SuperTimer extends CountDownTimer {
-        private long mWork, mRest, mInitialSecs;
+        private long mWork, mRest;
         private boolean isRest = false;
         private int mSets, mCurrentSet;
         private ArrayList<Long> mTimerEvents = new ArrayList<>();
@@ -59,34 +58,36 @@ public class MainFragment extends Fragment {
         SuperTimer(long work, long rest, int sets) {
             /* TODO: Error Checking */
             super((sets * (work+rest) - rest) * 1000, 500);
-            mInitialSecs = (sets * (work+rest) - rest);
             mWork = work;
             mRest = rest;
             mSets = sets;
             mCurrentSet = 1; //this will change in a later version
 
-            /* mTimerEvents should store the milliseconds remaining on
-            the clock for every event. */
             for (int i = 0; i < mSets; i++) {
-                long endSet = mInitialSecs - (i+1)*(mWork) - i*mRest;
-                long endRest = mInitialSecs - (i+1)*(mWork) - (i+1)*mRest;
-                mTimerEvents.add(endSet);
-
-                //The event list ends at zero. Don't add negative time events.
-                if (endRest < 0)
-                    break;
-                mTimerEvents.add(endRest);
+                TimerEvent workEvent = new TimerEvent(mWork, TimerEvent.Type.WORK);
+                mTimerEventStore.add(workEvent);
+                TimerEvent restEvent = new TimerEvent(mRest, TimerEvent.Type.REST);
+                mTimerEventStore.add(restEvent);
             }
+            //remove last rest event
+            mTimerEventStore.remove(mTimerEventStore.size() - 1);
         }
 
         @Override
         public void onTick(long millis_remaining) {
             long displayTime;
-            long nextEvent = mTimerEvents.get(0);
+            TimerEvent currentEvent = mTimerEventStore.currentEvent();
+            long eventEnd = (millis_remaining / 1000) + 1 - currentEvent.getDuration();
+            //long nextEvent = mTimerEvents.get(0);
 
-            displayTime = displayTime(millis_remaining, nextEvent);
+            displayTime = (millis_remaining / 1000) + 1 - eventEnd;
+
             if (displayTime == 0) {
-                if (isRest) { //we're at the end of rest period
+                //remove the current event from the list since we're done and get the next
+                mTimerEventStore.remove(0);
+                currentEvent = mTimerEventStore.currentEvent();
+
+                if (currentEvent.getType() == TimerEvent.Type.WORK) {
                     if (mSoundID != mSoundWhistle) {
                         mSP.play(mSoundWhistle, 1f, 1f, 1, 0, 1f);
                         Log.d(TAG, "Playing Whistle Sound!");
@@ -97,7 +98,7 @@ public class MainFragment extends Fragment {
                         mCurrentSetText.setText("Set: " + Integer.toString(mCurrentSet)
                                 + " of " + Integer.toString(mSets));
                     }
-                } else { //we're at the end of the work period
+                } else if (currentEvent.getType() == TimerEvent.Type.REST){
                     if (mSoundID != mSoundRest) {
                         mSetType.setText("REST");
                         mSetType.setTextColor(Color.parseColor("#0000ff"));
@@ -106,10 +107,7 @@ public class MainFragment extends Fragment {
                         mSoundID = mSoundRest;
                     }
                 }
-                mTimerEvents.remove(0);
-                nextEvent = mTimerEvents.get(0);
-                displayTime = displayTime(millis_remaining, nextEvent);
-                isRest = !isRest;
+                //displayTime = displayTime(millis_remaining, nextEvent);
             }
 
             mClockText.setText(formatTimeString(displayTime));
@@ -120,10 +118,6 @@ public class MainFragment extends Fragment {
             Toast.makeText(getActivity(), "Timer Done!", Toast.LENGTH_SHORT).show();
             mSP.play(mSoundCheer, 1f, 1f, 0, 0, 1f);
             reset();
-        }
-
-        private long displayTime(long millis_remaining, long secs_end) {
-            return (millis_remaining / 1000) + 1 - secs_end;
         }
     }
 

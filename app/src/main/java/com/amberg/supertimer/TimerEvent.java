@@ -24,7 +24,7 @@ public class TimerEvent {
         mType = type;
     }
 
-    public UUID getmId() {
+    public UUID getId() {
         return mId;
     }
 
