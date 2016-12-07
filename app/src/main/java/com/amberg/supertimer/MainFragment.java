@@ -45,19 +45,19 @@ public class MainFragment extends Fragment {
     private int mSoundID = -1; //trying to use this to have sounds only play once.
     //the above seems like a dumb hack.
     private int mSoundWhistle, mSoundCheer, mSoundRest;
-    private TimerEventStore mTimerEventStore = new TimerEventStore();
+    private TimerEventStore mTimerEventStore;
 
     /* Implementing CountDownTimer within the activity, but at some
     * point it might be good to see how to encapsulate it into its own class file */
     public class SuperTimer extends CountDownTimer {
         private long mWork, mRest;
-        private boolean isRest = false;
         private int mSets, mCurrentSet;
         private ArrayList<Long> mTimerEvents = new ArrayList<>();
 
         SuperTimer(long work, long rest, int sets) {
             /* TODO: Error Checking */
-            super((sets * (work+rest) - rest) * 1000, 500);
+            super((sets * (work + rest) - rest) * 1000, 500);
+            mTimerEventStore = new TimerEventStore();
             mWork = work;
             mRest = rest;
             mSets = sets;
@@ -77,10 +77,14 @@ public class MainFragment extends Fragment {
         public void onTick(long millis_remaining) {
             long displayTime;
             TimerEvent currentEvent = mTimerEventStore.currentEvent();
-            long eventEnd = (millis_remaining / 1000) + 1 - currentEvent.getDuration();
+
+            if (currentEvent.getEventEnd() == null) {
+                currentEvent.setEventEnd((millis_remaining / 1000) + 1
+                        - currentEvent.getDuration());
+            }
             //long nextEvent = mTimerEvents.get(0);
 
-            displayTime = (millis_remaining / 1000) + 1 - eventEnd;
+            displayTime = (millis_remaining / 1000) + 1 - currentEvent.getEventEnd();
 
             if (displayTime == 0) {
                 //remove the current event from the list since we're done and get the next
@@ -178,7 +182,7 @@ public class MainFragment extends Fragment {
                 /* Display that we're on Set 1 of X sets. That number 1 is hard coded, but
                 eventually will need to be changed to reflect whether we're on a work set
                  */
-                mCurrentSetText.setText("Set: 1 of " + mTextSets.getText());
+                mCurrentSetText.setText("Set: 1 of " + Integer.toString(sets));
                 mCurrentSetText.setVisibility(View.VISIBLE);
                 mStartButton.setEnabled(false);
                 mCancelButton.setEnabled(true);

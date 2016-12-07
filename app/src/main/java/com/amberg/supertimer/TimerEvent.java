@@ -14,6 +14,7 @@ public class TimerEvent {
     public enum Type { WORK, REST }
     Type mType;
     private long mDuration;
+    private Long mEventEnd;
 
     /* default constructor: duration should be in milliseconds
      * and type should be one of the Types defined above.
@@ -46,5 +47,13 @@ public class TimerEvent {
 
     public boolean isUntimed() {
         return (this.mDuration == 0);
+    }
+
+    public Long getEventEnd() {
+        return this.mEventEnd;
+    }
+
+    public void setEventEnd(Long eventEnd) {
+        this.mEventEnd = eventEnd;
     }
 }
