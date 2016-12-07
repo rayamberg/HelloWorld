@@ -44,13 +44,11 @@ public class MainFragment extends Fragment {
     private int mSoundID = -1; //trying to use this to have sounds only play once.
     //the above seems like a dumb hack.
     private int mSoundWhistle, mSoundCheer, mSoundRest;
-    private TimerEventStore mTimerEventStore;
 
-    /* Implementing CountDownTimer within the activity, but at some
-    * point it might be good to see how to encapsulate it into its own class file */
     public class SuperTimer extends CountDownTimer {
         private long mWork, mRest;
         private int mSets, mCurrentSet;
+        private TimerEventStore mTimerEventStore;
 
         SuperTimer(long work, long rest, int sets) {
             /* TODO: Error Checking */
