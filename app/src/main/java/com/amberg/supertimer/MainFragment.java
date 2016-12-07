@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.util.ArrayList;
 
 /**
  * MainFragment contains the code to display the main portion of SuperTimer as a fragment.
@@ -52,7 +51,6 @@ public class MainFragment extends Fragment {
     public class SuperTimer extends CountDownTimer {
         private long mWork, mRest;
         private int mSets, mCurrentSet;
-        private ArrayList<Long> mTimerEvents = new ArrayList<>();
 
         SuperTimer(long work, long rest, int sets) {
             /* TODO: Error Checking */
@@ -90,6 +88,8 @@ public class MainFragment extends Fragment {
                 //remove the current event from the list since we're done and get the next
                 mTimerEventStore.remove(0);
                 currentEvent = mTimerEventStore.currentEvent();
+                currentEvent.setEventEnd((millis_remaining / 1000) + 1
+                        - currentEvent.getDuration());
 
                 if (currentEvent.getType() == TimerEvent.Type.WORK) {
                     if (mSoundID != mSoundWhistle) {
@@ -111,7 +111,9 @@ public class MainFragment extends Fragment {
                         mSoundID = mSoundRest;
                     }
                 }
-                //displayTime = displayTime(millis_remaining, nextEvent);
+                /*We need to refresh the display time to avoid strange display behavior around the
+                time the clock reaches zero. */
+                displayTime = (millis_remaining / 1000) + 1 - currentEvent.getEventEnd();
             }
 
             mClockText.setText(formatTimeString(displayTime));
